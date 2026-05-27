@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>控制面板 - Mom Cheer-up Pet</title>
+  <link rel="stylesheet" href="control.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="glass-panel">
+    <header>
+      <h1>✨ 璨璨控制台</h1>
+      <p>專屬媽媽的貼心小助手設定</p>
+    </header>
+
+    <div class="tabs" style="display: flex; flex-wrap: wrap; gap: 5px; background: rgba(255, 255, 255, 0.3); border-radius: 12px; padding: 5px; margin-bottom: 20px;">
+      <button class="tab-btn active" data-tab="settings-tab" style="font-size: 13px; padding: 8px 5px;">⚙️ 基本與時段</button>
+      <button class="tab-btn" data-tab="custom-tab" style="font-size: 13px; padding: 8px 5px;">🎯 動作自訂</button>
+      <button class="tab-btn" data-tab="random-tab" style="font-size: 13px; padding: 8px 5px;">🖼️ 隨機形象庫</button>
+      <button class="tab-btn" data-tab="phrases-tab" style="font-size: 13px; padding: 8px 5px;">💬 語錄編輯</button>
+      <button class="tab-btn" data-tab="update-tab" style="font-size: 13px; padding: 8px 5px;">🔄 檢查更新</button>
+    </div>
+
+    <!-- 1. 基本與時段設定 -->
+    <div class="tab-content active" id="settings-tab">
+      <div class="setting-group">
+        <label for="petSize">📏 寵物大小 (<span id="sizeValue">120</span>px)</label>
+        <input type="range" id="petSize" min="80" max="300" value="120">
+      </div>
+      
+      <div class="setting-group">
+        <label for="petSpeed">🏃 移動速度 (<span id="speedValue">5</span>)</label>
+        <input type="range" id="petSpeed" min="1" max="10" value="5">
+      </div>
+
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label" for="randomWander">
+          <input type="checkbox" id="randomWander" checked>
+          <span>🔀 啟用隨機散步移動</span>
+        </label>
+      </div>
+
+      <!-- ⏰ 提醒時段自訂 -->
+      <div class="setting-group" style="margin-top: 10px;">
+        <h3 style="font-size: 14px; font-weight: 600; color: #d9480f; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+          ⏰ 璨璨提醒時段自訂
+        </h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- 午休時段 -->
+          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.4); padding: 8px 12px; border-radius: 8px;">
+            <span style="font-weight: 600; font-size: 13px; color: #444;">🍱 午休提醒時段:</span>
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <input type="number" id="lunchStartH" min="0" max="23" style="width: 45px; height: 28px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.15); text-align: center; font-weight: 600;">:
+              <input type="number" id="lunchStartM" min="0" max="59" style="width: 45px; height: 28px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.15); text-align: center; font-weight: 600;">
+              <span style="margin: 0 5px; font-size: 12px; color: #777;">至</span>
+              <input type="number" id="lunchEndH" min="0" max="23" style="width: 45px; height: 28px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.15); text-align: center; font-weight: 600;">:
+              <input type="number" id="lunchEndM" min="0" max="59" style="width: 45px; height: 28px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.15); text-align: center; font-weight: 600;">
+            </div>
+          </div>
+          
+          <!-- 下班時段 -->
+          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.4); padding: 8px 12px; border-radius: 8px;">
+            <span style="font-weight: 600; font-size: 13px; color: #444;">💼 下班提醒時段:</span>
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <input type="number" id="offworkStartH" min="0" max="23" style="width: 45px; height: 28px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.15); text-align: center; font-weight: 600;">:
+              <input type="number" id="offworkStartM" min="0" max="59" style="width: 45px; height: 28px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.15); text-align: center; font-weight: 600;">
+              <span style="margin: 0 5px; font-size: 12px; color: #777;">至</span>
+              <input type="number" id="offworkEndH" min="0" max="23" style="width: 45px; height: 28px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.15); text-align: center; font-weight: 600;">:
+              <input type="number" id="offworkEndM" min="0" max="59" style="width: 45px; height: 28px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.15); text-align: center; font-weight: 600;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button id="applyBtn" class="btn primary" style="flex: 1;">套用與儲存設定</button>
+      </div>
+    </div>
+
+    <!-- 2. 動作自訂照片 -->
+    <div class="tab-content" id="custom-tab">
+      <p class="instruction">上傳照片並使用「神奇橡皮擦」去除不要的背景！</p>
+      
+      <!-- 手動鎖定特定造型 -->
+      <div class="setting-group" style="margin-top: 10px;">
+        <label for="lockStateSelect" style="font-weight: 600; font-size: 14px; color: #444;">🔒 手動固定顯示造型 (自選圖片):</label>
+        <select id="lockStateSelect" style="width: 100%; height: 36px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.15); padding: 0 10px; font-weight: 600; color: #444; background: rgba(255,255,255,0.8); cursor: pointer; outline: none; margin-top: 5px;">
+          <option value="AUTO">🔄 自動依物理/時段更換造型</option>
+          <option value="LAUGH">🎯 預設 / 微笑 (LAUGH)</option>
+          <option value="TRAVEL">🏃 散步移動 (TRAVEL)</option>
+          <option value="STRETCH">🛸 被抓 / 墜落 (STRETCH)</option>
+          <option value="SLEEP">💤 睡覺休息 (SLEEP)</option>
+        </select>
+      </div>
+
+      <div class="setting-group" style="margin-top: 10px;">
+        <label for="customStateSelect" style="font-weight: 600; font-size: 14px; color: #444;">🎯 選擇要替換的造型狀態:</label>
+        <select id="customStateSelect" style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.15); padding: 0 10px; font-weight: 600; color: #444; background: rgba(255,255,255,0.8); cursor: pointer; outline: none; margin-top: 5px;">
+          <option value="LAUGH">預設 / 微笑 (LAUGH)</option>
+          <option value="TRAVEL">散步移動 (TRAVEL)</option>
+          <option value="STRETCH">被抓 / 墜落 (STRETCH)</option>
+          <option value="SLEEP">睡覺休息 (SLEEP)</option>
+        </select>
+      </div>
+
+      <div class="upload-section">
+        <input type="file" id="imageUpload" accept="image/png, image/jpeg" hidden>
+        <button id="uploadBtn" class="btn secondary">📁 選擇照片</button>
+      </div>
+
+      <div class="canvas-container">
+        <canvas id="photoEditor" width="300" height="300"></canvas>
+      </div>
+
+      <div class="editor-tools">
+        <label>🖌️ 橡皮擦大小: <span id="brushSizeValue">10</span>px</label>
+        <input type="range" id="brushSize" min="1" max="50" value="10">
+        <p class="hint">按住滑鼠左鍵在畫布上拖曳可擦除背景。</p>
+      </div>
+
+      <!-- 造型狀態狀態看板 -->
+      <div class="setting-group status-board-group" style="margin-top: 15px;">
+        <h3 style="font-size: 14px; font-weight: 600; color: #d9480f; margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
+          📋 目前自訂造型狀態看板
+        </h3>
+        <div class="status-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <!-- LAUGH 插槽 -->
+          <div class="status-card" id="card-LAUGH" style="background: rgba(255,255,255,0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; position: relative;">
+            <span style="font-weight: 600; font-size: 12px; color: #444;">🎯 預設 / 微笑</span>
+            <div class="thumb-container" style="width: 50px; height: 50px; border-radius: 6px; background: rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px dashed rgba(0,0,0,0.1);">
+              <img id="thumb-LAUGH" src="../../assets/LAUGH.png" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            </div>
+            <span class="status-text" id="status-LAUGH" style="font-size: 11px; font-weight: 600; color: #777;">使用預設</span>
+            <button class="btn-slot-reset" data-state="LAUGH" style="width: 100%; height: 24px; font-size: 11px; padding: 2px 5px; border: 1px solid #ff5252; color: #ff5252; background: white; border-radius: 4px; cursor: pointer; transition: all 0.2s; display: none; outline: none; margin-top: 2px;">還原此造型</button>
+          </div>
+          <!-- TRAVEL 插槽 -->
+          <div class="status-card" id="card-TRAVEL" style="background: rgba(255,255,255,0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; position: relative;">
+            <span style="font-weight: 600; font-size: 12px; color: #444;">🏃 散步移動</span>
+            <div class="thumb-container" style="width: 50px; height: 50px; border-radius: 6px; background: rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px dashed rgba(0,0,0,0.1);">
+              <img id="thumb-TRAVEL" src="../../assets/TRAVEL.png" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            </div>
+            <span class="status-text" id="status-TRAVEL" style="font-size: 11px; font-weight: 600; color: #777;">使用預設</span>
+            <button class="btn-slot-reset" data-state="TRAVEL" style="width: 100%; height: 24px; font-size: 11px; padding: 2px 5px; border: 1px solid #ff5252; color: #ff5252; background: white; border-radius: 4px; cursor: pointer; transition: all 0.2s; display: none; outline: none; margin-top: 2px;">還原此造型</button>
+          </div>
+          <!-- STRETCH 插槽 -->
+          <div class="status-card" id="card-STRETCH" style="background: rgba(255,255,255,0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; position: relative;">
+            <span style="font-weight: 600; font-size: 12px; color: #444;">🛸 被抓 / 墜落</span>
+            <div class="thumb-container" style="width: 50px; height: 50px; border-radius: 6px; background: rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px dashed rgba(0,0,0,0.1);">
+              <img id="thumb-STRETCH" src="../../assets/STRETCH.png" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            </div>
+            <span class="status-text" id="status-STRETCH" style="font-size: 11px; font-weight: 600; color: #777;">使用預設</span>
+            <button class="btn-slot-reset" data-state="STRETCH" style="width: 100%; height: 24px; font-size: 11px; padding: 2px 5px; border: 1px solid #ff5252; color: #ff5252; background: white; border-radius: 4px; cursor: pointer; transition: all 0.2s; display: none; outline: none; margin-top: 2px;">還原此造型</button>
+          </div>
+          <!-- SLEEP 插槽 -->
+          <div class="status-card" id="card-SLEEP" style="background: rgba(255,255,255,0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; position: relative;">
+            <span style="font-weight: 600; font-size: 12px; color: #444;">💤 睡覺休息</span>
+            <div class="thumb-container" style="width: 50px; height: 50px; border-radius: 6px; background: rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px dashed rgba(0,0,0,0.1);">
+              <img id="thumb-SLEEP" src="../../assets/SLEEP.png" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            </div>
+            <span class="status-text" id="status-SLEEP" style="font-size: 11px; font-weight: 600; color: #777;">使用預設</span>
+            <button class="btn-slot-reset" data-state="SLEEP" style="width: 100%; height: 24px; font-size: 11px; padding: 2px 5px; border: 1px solid #ff5252; color: #ff5252; background: white; border-radius: 4px; cursor: pointer; transition: all 0.2s; display: none; outline: none; margin-top: 2px;">還原此造型</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons" style="margin-top: 10px; flex-wrap: wrap; gap: 10px;">
+        <button id="saveCustomBtn" class="btn primary" style="flex: 1 1 100%;">💾 儲存並套用新造型</button>
+        <button id="resetCanvasBtn" class="btn danger" style="flex: 1;">🔄 重設畫布</button>
+        <button id="resetDefaultBtn" class="btn secondary" style="flex: 1; border: 1px solid #ff5252; color: #ff5252;">↩️ 還原為預設璨璨</button>
+      </div>
+    </div>
+
+    <!-- 3. 自訂隨機照片形象庫 -->
+    <div class="tab-content" id="random-tab">
+      <p class="instruction">上傳任意數量的照片，讓璨璨每隔一段時間隨機更換形象造型！</p>
+      
+      <div class="setting-group">
+        <label class="checkbox-label" for="useRandomPool">
+          <input type="checkbox" id="useRandomPool">
+          <span>🖼️ 啟用隨機輪播圖片形象</span>
+        </label>
+        
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 5px;">
+          <label for="randomPoolInterval" style="font-weight: 600; font-size: 13px; color: #555;">⏱️ 輪播更換頻率 (分鐘):</label>
+          <input type="number" id="randomPoolInterval" min="1" max="60" value="5" style="width: 60px; height: 32px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.15); text-align: center; font-weight: 600; outline: none;">
+        </div>
+      </div>
+
+      <div class="upload-section" style="margin-top: 10px;">
+        <input type="file" id="randomImageUpload" accept="image/png, image/jpeg" hidden>
+        <button id="randomUploadBtn" class="btn secondary" style="width: 100%;">📁 選擇隨機形象照片並去背</button>
+      </div>
+
+      <div class="canvas-container" id="randomCanvasContainer" style="display: none;">
+        <canvas id="randomPhotoEditor" width="300" height="300"></canvas>
+      </div>
+
+      <div class="editor-tools" id="randomEditorTools" style="display: none;">
+        <label>🖌️ 橡皮擦大小: <span id="randomBrushSizeValue">10</span>px</label>
+        <input type="range" id="randomBrushSize" min="1" max="50" value="10">
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
+          <button id="saveRandomBtn" class="btn primary" style="flex: 2;">💾 儲存並加入隨機庫</button>
+          <button id="cancelRandomBtn" class="btn secondary" style="flex: 1; border: 1px solid #777; color: #555;">取消</button>
+        </div>
+      </div>
+
+      <div class="setting-group" style="margin-top: 10px;">
+        <h3 style="font-size: 14px; font-weight: 600; color: #d9480f; margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
+          🖼️ 璨璨形象照片庫
+        </h3>
+        <div id="randomPoolGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-height: 250px; overflow-y: auto; padding: 5px; background: rgba(255,255,255,0.4); border-radius: 10px;">
+          <!-- 動態載入縮圖卡片 -->
+          <div style="grid-column: span 3; text-align: center; font-size: 12px; color: #777; padding: 15px;">形象庫為空，請上傳照片！</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 溫馨語錄自訂編輯器 -->
+    <div class="tab-content" id="phrases-tab">
+      <p class="instruction">自訂璨璨的隨機暖心對話與提醒，讓互動更貼近媽媽的生活！</p>
+      
+      <div class="setting-group">
+        <label for="phraseCategorySelect" style="font-weight: 600; font-size: 13px; color: #444;">🏷️ 選擇語錄分類:</label>
+        <select id="phraseCategorySelect" style="width: 100%; height: 36px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.15); padding: 0 10px; font-weight: 600; color: #444; background: rgba(255,255,255,0.8); cursor: pointer; outline: none; margin-top: 5px;">
+          <option value="lunch">🍱 午休提醒語錄</option>
+          <option value="offwork">💼 下班提醒語錄</option>
+          <option value="cheer">🚶 隨機散步暖心話</option>
+          <option value="interact">💖 點擊互動語錄</option>
+        </select>
+      </div>
+
+      <div class="setting-group" style="margin-top: 5px;">
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input type="text" id="newPhraseInput" placeholder="輸入新的璨璨貼心話..." style="flex: 1; height: 36px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.15); padding: 0 10px; font-weight: 600; font-size: 13px; outline: none;">
+          <button id="addPhraseBtn" class="btn primary" style="flex: 0 0 80px; padding: 0; height: 36px;">➕ 新增</button>
+        </div>
+      </div>
+
+      <div class="setting-group" style="margin-top: 10px;">
+        <h3 style="font-size: 14px; font-weight: 600; color: #d9480f; margin-bottom: 10px;">
+          💬 對話語句清單 (<span id="phraseCount">0</span>)
+        </h3>
+        <div id="phrasesListContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; background: rgba(255,255,255,0.4); padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.5);">
+          <!-- 動態載入語句清單 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 線上更新與檢測 -->
+    <div class="tab-content" id="update-tab">
+      <p class="instruction">檢查是否有最新版本的璨璨桌面助理，為您修復 Bug 並提供更多精彩功能！</p>
+      
+      <div class="setting-group" style="text-align: center; padding: 25px 15px; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+        <div style="font-size: 40px;">✨</div>
+        <div style="font-weight: bold; font-size: 16px; color: #d9480f;">璨璨系統自動更新</div>
+        <div style="font-size: 13px; color: #666;" id="currentVersionLabel">目前版本: 1.0.0</div>
+        
+        <button id="checkUpdatesBtn" class="btn primary" style="width: 80%; max-width: 250px;">🔍 立即檢查更新</button>
+        
+        <!-- 更新提示資訊區 -->
+        <div id="updateInfoContainer" style="display: none; background: rgba(255,255,255,0.6); border: 1px solid #ffcc00; border-radius: 10px; padding: 15px; text-align: left; width: 100%; margin-top: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <div style="font-weight: bold; font-size: 14px; color: #2b8a3e; margin-bottom: 5px;">🎉 發現新版本: <span id="latestVersionLabel">1.1.0</span></div>
+          <div style="font-size: 12px; color: #555; margin-bottom: 10px;">更新日誌: <br><span id="updateNotesLabel" style="font-weight: normal; color: #333;">修復點擊 Bug...</span></div>
+          
+          <button id="startUpdateBtn" class="btn primary" style="width: 100%;">⏬ 立即下載並全自動安裝</button>
+        </div>
+
+        <!-- 下載進度條 -->
+        <div id="downloadProgressContainer" style="display: none; width: 100%; text-align: left; margin-top: 10px;">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #444; margin-bottom: 5px;">
+            <span>📥 下載安裝程式中...</span>
+            <span id="downloadPercent">0%</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden;">
+            <div id="downloadProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff758c, #ff7eb3); transition: width 0.1s;"></div>
+          </div>
+        </div>
+
+        <div id="noUpdateLabel" style="display: none; font-weight: bold; font-size: 13px; color: #2b8a3e; margin-top: 10px;">
+          ✅ 璨璨已經是最新版本，無需更新！
+        </div>
+      </div>
+      
+      <!-- 自訂更新檢查 API URL -->
+      <div class="setting-group" style="margin-top: 10px;">
+        <label for="updateUrlInput" style="font-weight: 600; font-size: 12px; color: #555;">🔗 進階更新檢測伺服器網址 (JSON):</label>
+        <input type="text" id="updateUrlInput" style="width: 100%; height: 32px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.15); padding: 0 10px; font-size: 11px; outline: none; margin-top: 5px;">
+      </div>
+    </div>
+  </div>
+
+  <script src="control.js"></script>
+</body>
+</html>

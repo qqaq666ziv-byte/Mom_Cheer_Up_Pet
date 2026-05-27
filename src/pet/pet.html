@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>璨璨</title>
+  <link rel="stylesheet" href="pet.css">
+</head>
+<body>
+  <!-- 整個畫面是不可見且不擋滑鼠的 wrapper -->
+  <div id="pet-wrapper" class="pet-wrapper">
+    <!-- 這個 container 才是真正被位移且可被點擊的實體 -->
+    <div id="pet-container" class="pet-container">
+
+      <div id="dialog-bubble" class="dialog-bubble hidden">
+        <div id="dialog-text" class="dialog-text"></div>
+        <div class="bubble-arrow"></div>
+      </div>
+      <img id="pet-sprite" src="../../assets/LAUGH.png" alt="Pet Sprite">
+    </div>
+  </div>
+
+  <script src="pet.js"></script>
+</body>
+</html>

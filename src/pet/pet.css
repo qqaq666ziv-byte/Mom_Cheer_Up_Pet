@@ -1,0 +1,109 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.002); /* 重要：近乎透明但非零 alpha，確保 Windows 完美轉發滑鼠移動事件 */
+}
+
+/* 寵物本體容器，在 JS 中進行 transform 移動 */
+.pet-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  /* 禁止整個全螢幕捕捉滑鼠，讓子元素來處理 */
+  pointer-events: none;
+}
+
+.pet-container {
+  position: absolute;
+  /* 將基準點設為底部中心，方便進行擠壓、跳躍變形 */
+  transform-origin: bottom center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  /* 讓實體元素捕捉滑鼠 */
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.pet-container:active {
+  cursor: grabbing;
+}
+
+#pet-sprite {
+  width: 150px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0px 0px 3px rgba(255,255,255,0.8)) drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+  transition: filter 0.3s;
+}
+
+#pet-sprite:hover {
+  filter: drop-shadow(0px 0px 3px rgba(255,255,255,0.8)) drop-shadow(0 6px 12px #ffcc00);
+}
+
+
+/* 訊息氣泡 */
+.dialog-bubble {
+  position: absolute;
+  bottom: 100%;
+  margin-bottom: 15px;
+  background-color: #fffae6;
+  border: 2px solid #ffcc00;
+  border-radius: 12px;
+  padding: 10px 15px;
+  min-width: 150px;
+  max-width: 200px;
+  text-align: center;
+  font-family: 'Microsoft JhengHei', 'Inter', sans-serif;
+  font-weight: bold;
+  font-size: 13px;
+  color: #554400;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  opacity: 0;
+  pointer-events: auto; /* 允許點擊對話框 */
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 10;
+}
+
+.dialog-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 10px 10px 0;
+  border-style: solid;
+  border-color: #ffcc00 transparent transparent transparent;
+  display: block;
+  width: 0;
+}
+.dialog-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px 8px 0;
+  border-style: solid;
+  border-color: #fffae6 transparent transparent transparent;
+  display: block;
+  width: 0;
+  z-index: 1;
+}
+
+.dialog-bubble.show {
+  opacity: 1;
+  transform: translateY(-10px) scale(1);
+}

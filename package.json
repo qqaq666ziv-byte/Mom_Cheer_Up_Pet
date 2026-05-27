@@ -1,0 +1,51 @@
+{
+  "name": "mom-cheer-up-pet",
+  "version": "1.0.0",
+  "description": "璨璨的精緻桌面寵物，幫親愛的母加油打氣！",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-packager . MomCheerUpPet --platform=win32 --arch=x64 --out=dist --icon=assets/icon.ico --overwrite",
+    "build-installer": "electron-builder build --win"
+  },
+  "keywords": [],
+  "author": "璨璨",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^30.5.1",
+    "electron-builder": "^24.13.3",
+    "electron-packager": "^17.1.2"
+  },
+  "build": {
+    "appId": "com.chancan.mompet",
+    "productName": "MomCheerUpPet",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "璨璨桌面寵物",
+      "runAfterFinish": true
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "assets/**/*",
+      "src/**/*"
+    ]
+  }
+}

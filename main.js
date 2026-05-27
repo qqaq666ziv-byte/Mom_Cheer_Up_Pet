@@ -1,0 +1,378 @@
+const { app, BrowserWindow, ipcMain, Tray, Menu, screen } = require('electron');
+const path = require('path');
+const fs = require('fs');
+const https = require('https');
+const { exec } = require('child_process');
+
+let petWindow;
+let tray;
+
+// 預設設定檔路徑
+const configPath = path.join(app.getPath('userData'), 'pet-config.json');
+const randomPoolDir = path.join(app.getPath('userData'), 'random-pool');
+
+app.disableHardwareAcceleration(); // 解決 Windows 透明視窗可能變黑底的問題
+
+// 讀取設定
+function loadConfig() {
+  if (fs.existsSync(configPath)) {
+    try {
+      return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    } catch (e) {
+      console.error('讀取設定檔失敗，將使用預設值', e);
+    }
+  }
+  return {
+    size: 150,
+    speed: 3,
+    colorFilters: {
+      hueRotate: 0,
+      saturate: 100,
+      brightness: 100,
+      contrast: 100
+    },
+    phrases: {
+      lunch: [
+        "親愛的母，現在是午休時間！一定要記得吃午餐，吃飽睡一下喔！🍱",
+        "噓... 璨璨充飽電了，親愛的母也該放下手邊工作，好好休息一下囉! 💤"
+      ],
+      offwork: [
+        "親愛的母，下午 3 點多了，工作辛苦啦！可以準備收工囉！💼",
+        "辛苦一整天了，親愛的母快快整理東西，我們一起回家吧！🏠"
+      ],
+      cheer: [
+        "親愛的母！喝口水休息一下吧！🚰",
+        "不管有多忙，璨璨永遠在旁邊陪妳喔！💪",
+        "報告親愛的母！璨璨警長提醒妳，該讓眼睛休息一下囉！👀",
+        "出發！陪親愛的母一起努力工作！✨"
+      ],
+      interact: [
+        "親愛的母，看到我笑，心情有沒有好一點呀？❤️",
+        "親愛的母，今天也要開開心心喔！😁",
+        "哇～被抓起來了！放到這裡好不好？🚚",
+        "親愛的母，坐太久對腰不好，跟著我站起來伸個懶腰吧！🙌"
+      ]
+    }
+  };
+}
+
+// 儲存設定
+function saveConfig(config) {
+  try {
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('儲存設定檔失敗', e);
+  }
+}
+
+function createPetWindow() {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+  
+  // 使用全螢幕透明視窗，確保物理引擎與滑鼠拖曳在 60FPS 下完美平滑運行
+  petWindow = new BrowserWindow({
+    width,
+    height,
+    x: 0,
+    y: 0,
+    transparent: true,
+    frame: false,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    resizable: false,
+    hasShadow: false,
+    webPreferences: {
+      nodeIntegration: false,
+      contextBridge: true,
+      preload: path.join(__dirname, 'preload.js'),
+      webSecurity: false // 允許讀取本機自訂圖片
+    }
+  });
+
+  petWindow.loadFile(path.join(__dirname, 'src', 'pet', 'pet.html'));
+  
+  // 視窗最上層與防置頂失效處理
+  petWindow.setAlwaysOnTop(true, 'screen-saver');
+
+  // 初始化時預設忽略滑鼠事件，讓全螢幕視窗不會擋住用戶操作
+  petWindow.setIgnoreMouseEvents(true, { forward: true });
+
+  petWindow.on('closed', () => {
+    petWindow = null;
+  });
+}
+
+function createTray() {
+  tray = new Tray(path.join(__dirname, 'assets', 'icon.ico'));
+  const contextMenu = Menu.buildFromTemplate([
+    { label: '開啟控制面板', click: () => createControlPanel() },
+    { label: '跟我說話！', click: () => petWindow.webContents.send('force-speak') },
+    { type: 'separator' },
+    { label: '關閉應用程式', click: () => app.quit() }
+  ]);
+  tray.setToolTip('Mom Cheer Up Pet');
+  tray.setContextMenu(contextMenu);
+}
+
+function createControlPanel() {
+  const controlWindow = new BrowserWindow({
+    width: 600,
+    height: 750,
+    autoHideMenuBar: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextBridge: true,
+      preload: path.join(__dirname, 'preload.js')
+    }
+  });
+  controlWindow.loadFile(path.join(__dirname, 'src', 'control', 'control.html'));
+}
+
+app.whenReady().then(() => {
+  createPetWindow();
+  createTray();
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+});
+
+// IPC 通訊處理
+ipcMain.handle('load-config', () => {
+  return loadConfig();
+});
+
+ipcMain.handle('save-config', (event, config) => {
+  saveConfig(config);
+  if (petWindow) {
+    petWindow.webContents.send('config-updated', config);
+  }
+});
+
+// 處理背景透明視窗的滑鼠穿透切換
+ipcMain.on('set-ignore-mouse-events', (event, ignore, options) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win) {
+    win.setIgnoreMouseEvents(ignore, options);
+  }
+});
+
+ipcMain.handle('get-work-area-size', () => {
+  return screen.getPrimaryDisplay().workAreaSize;
+});
+
+// 處理右鍵選單
+ipcMain.on('show-context-menu', () => {
+  const contextMenu = Menu.buildFromTemplate([
+    { label: '開啟控制面板', click: () => createControlPanel() },
+    { label: '跟我說話！', click: () => petWindow.webContents.send('force-speak') },
+    { type: 'separator' },
+    { label: '關閉寵物', click: () => app.quit() }
+  ]);
+  contextMenu.popup();
+});
+
+ipcMain.on('quit-app', () => {
+  app.quit();
+});
+
+// 儲存與讀取自訂寵物圖片 (支援多插槽：LAUGH, TRAVEL, STRETCH, SLEEP)
+ipcMain.handle('save-custom-pet', (event, { state, base64Data }) => {
+  const customPetPath = path.join(app.getPath('userData'), `custom-${state}.png`);
+  const base64Image = base64Data.split(';base64,').pop();
+  fs.writeFileSync(customPetPath, base64Image, { encoding: 'base64' });
+  if (petWindow) {
+    petWindow.webContents.send('custom-pet-updated', { state, path: customPetPath });
+  }
+  return customPetPath;
+});
+
+ipcMain.handle('get-custom-pet-paths', () => {
+  const paths = {};
+  const states = ['LAUGH', 'TRAVEL', 'STRETCH', 'SLEEP'];
+  states.forEach(s => {
+    const p = path.join(app.getPath('userData'), `custom-${s}.png`);
+    if (fs.existsSync(p)) {
+      paths[s] = p;
+    }
+  });
+  return paths;
+});
+
+ipcMain.handle('clear-all-custom-pets', () => {
+  const states = ['LAUGH', 'TRAVEL', 'STRETCH', 'SLEEP'];
+  states.forEach(s => {
+    const p = path.join(app.getPath('userData'), `custom-${s}.png`);
+    if (fs.existsSync(p)) {
+      try {
+        fs.unlinkSync(p);
+      } catch (e) {
+        console.error('刪除自訂造型失敗', p, e);
+      }
+    }
+  });
+  if (petWindow) {
+    petWindow.webContents.send('custom-pets-cleared');
+  }
+  return true;
+});
+
+ipcMain.handle('clear-custom-pet', (event, state) => {
+  const customPetPath = path.join(app.getPath('userData'), `custom-${state}.png`);
+  if (fs.existsSync(customPetPath)) {
+    try {
+      fs.unlinkSync(customPetPath);
+    } catch (e) {
+      console.error('刪除單一自訂造型失敗', customPetPath, e);
+    }
+  }
+  if (petWindow) {
+    petWindow.webContents.send('custom-pet-cleared-slot', state);
+  }
+  return true;
+});
+
+// ==========================================
+// 隨機圖片池 (random-pool) 檔案管理 IPC
+// ==========================================
+ipcMain.handle('save-random-pool-image', (event, base64Data) => {
+  if (!fs.existsSync(randomPoolDir)) {
+    fs.mkdirSync(randomPoolDir, { recursive: true });
+  }
+  const filename = `img-${Date.now()}.png`;
+  const filepath = path.join(randomPoolDir, filename);
+  const base64Image = base64Data.split(';base64,').pop();
+  fs.writeFileSync(filepath, base64Image, { encoding: 'base64' });
+  return filepath;
+});
+
+ipcMain.handle('get-random-pool', () => {
+  if (!fs.existsSync(randomPoolDir)) {
+    return [];
+  }
+  try {
+    const files = fs.readdirSync(randomPoolDir);
+    return files
+      .filter(f => f.endsWith('.png'))
+      .map(f => path.join(randomPoolDir, f));
+  } catch (e) {
+    console.error('讀取隨機形象庫失敗', e);
+    return [];
+  }
+});
+
+ipcMain.handle('delete-random-pool-image', (event, filepath) => {
+  try {
+    if (fs.existsSync(filepath)) {
+      fs.unlinkSync(filepath);
+      return true;
+    }
+  } catch (e) {
+    console.error('刪除隨機形象庫照片失敗', filepath, e);
+  }
+  return false;
+});
+
+// ==========================================
+// 一鍵線上自動更新系統 IPC
+// ==========================================
+function fetchJSON(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, { headers: { 'User-Agent': 'MomCheerUpPet-Updater' } }, (res) => {
+      if (res.statusCode !== 200) {
+        reject(new Error(`下載 JSON 失敗，狀態碼: ${res.statusCode}`));
+        return;
+      }
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        try {
+          resolve(JSON.parse(data));
+        } catch (e) {
+          reject(e);
+        }
+      });
+    }).on('error', (err) => reject(err));
+  });
+}
+
+function isNewerVersion(newVer, currentVer) {
+  const n = newVer.split('.').map(Number);
+  const c = currentVer.split('.').map(Number);
+  for (let i = 0; i < Math.max(n.length, c.length); i++) {
+    const nVal = n[i] || 0;
+    const cVal = c[i] || 0;
+    if (nVal > cVal) return true;
+    if (nVal < cVal) return false;
+  }
+  return false;
+}
+
+ipcMain.handle('check-for-updates', async (event, customUrl) => {
+  const url = customUrl || "https://raw.githubusercontent.com/username/Mom_Cheer_Up_Pet/main/update.json";
+  try {
+    const updateInfo = await fetchJSON(url);
+    const currentVersion = app.getVersion();
+    const hasUpdate = isNewerVersion(updateInfo.version, currentVersion);
+    return {
+      hasUpdate,
+      version: updateInfo.version,
+      url: updateInfo.url,
+      notes: updateInfo.notes,
+      currentVersion
+    };
+  } catch (e) {
+    console.error('線上檢查更新失敗', e);
+    return { hasUpdate: false, error: e.message };
+  }
+});
+
+ipcMain.handle('download-and-install-update', async (event, downloadUrl) => {
+  const tempDir = app.getPath('temp');
+  const installerPath = path.join(tempDir, 'MomCheerUpPet_Setup_Latest.exe');
+  
+  if (fs.existsSync(installerPath)) {
+    try { fs.unlinkSync(installerPath); } catch(e) {}
+  }
+  
+  const file = fs.createWriteStream(installerPath);
+  
+  return new Promise((resolve, reject) => {
+    https.get(downloadUrl, (res) => {
+      if (res.statusCode !== 200) {
+        reject(new Error(`下載安裝檔失敗，狀態碼: ${res.statusCode}`));
+        return;
+      }
+      const totalSize = parseInt(res.headers['content-length'], 10) || 0;
+      let downloadedSize = 0;
+      
+      res.on('data', (chunk) => {
+        downloadedSize += chunk.length;
+        if (totalSize > 0) {
+          const progress = Math.round((downloadedSize / totalSize) * 100);
+          event.sender.send('download-progress', progress);
+        }
+      });
+      
+      res.pipe(file);
+      
+      file.on('finish', () => {
+        file.close(() => {
+          // 執行安裝程式並安全退出目前 App
+          exec(`"${installerPath}"`, (err) => {
+            if (err) {
+              console.error('執行自動安裝失敗', err);
+              reject(err);
+            }
+          });
+          setTimeout(() => {
+            app.quit();
+          }, 500);
+          resolve(true);
+        });
+      });
+    }).on('error', (err) => {
+      fs.unlink(installerPath, () => {});
+      reject(err);
+    });
+  });
+});
