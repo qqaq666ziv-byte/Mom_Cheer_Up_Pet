@@ -351,22 +351,23 @@ ipcMain.handle('check-for-updates', async (event, customUrl) => {
   }
 });
 
-ipcMain.handle('download-and-install-update', async (event, downloadUrl) => {
-  const tempDir = app.getPath('temp');
-  const installerPath = path.join(tempDir, 'MomCheerUpPet_Setup_Latest.exe');
-  
-  if (fs.existsSync(installerPath)) {
-    try { fs.unlinkSync(installerPath); } catch(e) {}
-  }
-  
-  const file = fs.createWriteStream(installerPath);
-  
+// 支援 HTTP 重定向 (301/302) 的檔案下載輔助函數 (適用於 GitHub Release 轉向 AWS S3 儲存)
+function downloadWithRedirect(url, destPath, event) {
   return new Promise((resolve, reject) => {
-    https.get(downloadUrl, (res) => {
+    https.get(url, { headers: { 'User-Agent': 'MomCheerUpPet-Updater' } }, (res) => {
+      // 處理 HTTP 重定向 (例如 301, 302) 到真正的下載伺服器 (如 AWS S3)
+      if (res.statusCode === 301 || res.statusCode === 302) {
+        const redirectUrl = res.headers.location;
+        resolve(downloadWithRedirect(redirectUrl, destPath, event));
+        return;
+      }
+      
       if (res.statusCode !== 200) {
         reject(new Error(`下載安裝檔失敗，狀態碼: ${res.statusCode}`));
         return;
       }
+      
+      const file = fs.createWriteStream(destPath);
       const totalSize = parseInt(res.headers['content-length'], 10) || 0;
       let downloadedSize = 0;
       
@@ -382,22 +383,48 @@ ipcMain.handle('download-and-install-update', async (event, downloadUrl) => {
       
       file.on('finish', () => {
         file.close(() => {
-          // 執行安裝程式並安全退出目前 App
-          exec(`"${installerPath}"`, (err) => {
-            if (err) {
-              console.error('執行自動安裝失敗', err);
-              reject(err);
-            }
-          });
-          setTimeout(() => {
-            app.quit();
-          }, 500);
           resolve(true);
         });
       });
     }).on('error', (err) => {
-      fs.unlink(installerPath, () => {});
       reject(err);
     });
   });
+}
+
+ipcMain.handle('download-and-install-update', async (event, downloadUrl) => {
+  const tempDir = app.getPath('temp');
+  
+  // 順便清理 temp 資料夾中舊的安裝檔，保持系統乾淨，若鎖定則跳過
+  try {
+    const files = fs.readdirSync(tempDir);
+    files.forEach(f => {
+      if (f.startsWith('MomCheerUpPet_Setup_') && f.endsWith('.exe')) {
+        try { fs.unlinkSync(path.join(tempDir, f)); } catch(e) {}
+      }
+    });
+  } catch(e) {}
+
+  // 使用時間戳記生成唯一的檔名，徹底避免先前下載的 installer 被 Windows 鎖定導致 EPERM 寫入失敗的 Bug！
+  const installerPath = path.join(tempDir, `MomCheerUpPet_Setup_${Date.now()}.exe`);
+  
+  try {
+    await downloadWithRedirect(downloadUrl, installerPath, event);
+    
+    // 執行安裝程式並安全退出目前 App
+    exec(`"${installerPath}"`, (err) => {
+      if (err) {
+        console.error('執行自動安裝失敗', err);
+      }
+    });
+    
+    setTimeout(() => {
+      app.quit();
+    }, 500);
+    
+    return true;
+  } catch (err) {
+    try { fs.unlinkSync(installerPath); } catch(e) {}
+    throw err;
+  }
 });
