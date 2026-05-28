@@ -237,29 +237,29 @@
 
       <div class="setting-group" style="margin-top: 5px;">
         <div style="display: flex; gap: 8px; align-items: center;">
-          <input type="text" id="newPhraseInput" placeholder="輸入新的璨璨貼心話..." style="flex: 1; height: 36px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.15); padding: 0 10px; font-weight: 600; font-size: 13px; outline: none;">
-          <button id="addPhraseBtn" class="btn primary" style="flex: 0 0 80px; padding: 0; height: 36px;">➕ 新增</button>
+          <input type="text" id="newPhraseInput" placeholder="輸入新的璨�        <div style="font-weight: bold; font-size: 16px; color: #d9480f;">璨璨系統自動更新</div>
+        <div style="font-size: 13px; color: #666;" id="currentVersionLabel">目前版本: 1.1.3</div>
+        
+        <button id="checkUpdatesBtn" class="btn primary" style="width: 80%; max-width: 250px;">🔍 立即檢查更新</button>
+        
+        <!-- 更新提示資訊區 -->
+        <div id="updateInfoContainer" style="display: none; background: rgba(255,255,255,0.6); border: 1px solid #ffcc00; border-radius: 10px; padding: 15px; text-align: left; width: 100%; margin-top: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <div style="font-weight: bold; font-size: 14px; color: #2b8a3e; margin-bottom: 5px;">🎉 發現新版本: <span id="latestVersionLabel">1.1.1</span></div>
+          <div style="font-size: 12px; color: #555; margin-bottom: 10px;">更新日誌: <br><span id="updateNotesLabel" style="font-weight: normal; color: #333;">修復點擊 Bug...</span></div>
+          
+          <button id="startUpdateBtn" class="btn primary" style="width: 100%;">⏬ 立即下載並全自動安裝</button>
         </div>
-      </div>
-
-      <div class="setting-group" style="margin-top: 10px;">
-        <h3 style="font-size: 14px; font-weight: 600; color: #d9480f; margin-bottom: 10px;">
-          💬 對話語句清單 (<span id="phraseCount">0</span>)
-        </h3>
-        <div id="phrasesListContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; background: rgba(255,255,255,0.4); padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.5);">
-          <!-- 動態載入語句清單 -->
-        </div>
-      </div>
-    </div>
-
-    <!-- 5. 線上更新與檢測 -->
-    <div class="tab-content" id="update-tab">
-      <p class="instruction">檢查是否有最新版本的璨璨桌面助理，為您修復 Bug 並提供更多精彩功能！</p>
-      
-      <div class="setting-group" style="text-align: center; padding: 15px 10px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
-        <div style="font-size: 40px;">✨</div>
-        <div style="font-weight: bold; font-size: 16px; color: #d9480f;">璨璨系統自動更新</div>
-        <div style="font-size: 13px; color: #666;" id="currentVersionLabel">目前版本: 1.1.1</div>
+ 
+        <!-- 下載進度條 -->
+        <div id="downloadProgressContainer" style="display: none; width: 100%; text-align: left; margin-top: 10px;">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #444; margin-bottom: 5px;">
+            <span>📥 下載安裝程式中...</span>
+            <span id="downloadPercent">0%</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden;">
+            <div id="downloadProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff758c, #ff7eb3); transition: width 0.1s;"></div>
+          </div>
+        <div style="font-size: 13px; color: #666;" id="currentVersionLabel">目前版本: 1.1.3</div>
         
         <button id="checkUpdatesBtn" class="btn primary" style="width: 80%; max-width: 250px;">🔍 立即檢查更新</button>
         
@@ -291,11 +291,44 @@
           <h4 style="font-size: 14px; font-weight: 600; color: #d9480f; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 5px; margin-top: 0;">
             📜 璨璨版本歷史更新日誌
           </h4>
-          <div style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 5px;">
-            <!-- v1.0.1 -->
+          <div style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 5px;">
+            <!-- v1.1.3 -->
             <div style="display: flex; flex-direction: column; gap: 3px;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: bold; font-size: 12px; color: #2b8a3e; background: rgba(43,138,62,0.1); padding: 2px 6px; border-radius: 4px;">v1.0.1 (最新修正)</span>
+                <span style="font-weight: bold; font-size: 12px; color: #d9480f; background: rgba(217,72,15,0.1); padding: 2px 6px; border-radius: 4px;">v1.1.3 (最新版本)</span>
+                <span style="font-size: 11px; color: #777;">2026/05/28</span>
+              </div>
+              <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: #444; line-height: 1.5;">
+                <li>📜 <b>更新日誌視覺與體驗改善</b>：精細化微調控制台的時間軸與排版，大幅改善文字可讀性。</li>
+                <li>🔄 <b>線上更新雙重驗證</b>：用作完整測試 v1.1.2 檔案鎖解鎖核心之可用性，從此邁入自動更新完美體驗！</li>
+              </ul>
+            </div>
+            <!-- v1.1.2 -->
+            <div style="display: flex; flex-direction: column; gap: 3px; border-top: 1px dashed rgba(0,0,0,0.08); padding-top: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: bold; font-size: 12px; color: #2b8a3e; background: rgba(43,138,62,0.1); padding: 2px 6px; border-radius: 4px;">v1.1.2 (歷史修正)</span>
+                <span style="font-size: 11px; color: #777;">2026/05/28</span>
+              </div>
+              <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: #444; line-height: 1.5;">
+                <li>🔄 <b>修復線上更新無法正常運作之 Bug</b>：重構更新下載邏輯，升級為獨立行程 (Detached Spawn) + 瞬間強制退出 (app.exit(0)) 解鎖機制，徹底解決安裝時 Windows 檔案寫入鎖定 EPERM 衝突！</li>
+              </ul>
+            </div>
+            <!-- v1.1.1 -->
+            <div style="display: flex; flex-direction: column; gap: 3px; border-top: 1px dashed rgba(0,0,0,0.08); padding-top: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: bold; font-size: 12px; color: #555; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px;">v1.1.1 (功能升級)</span>
+                <span style="font-size: 11px; color: #777;">2026/05/28</span>
+              </div>
+              <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: #444; line-height: 1.5;">
+                <li>🖼️ <b>首頁質感大 Banner 橫幅</b>：首頁頂部新增精美封面插圖，美觀質感大 WOW 躍升！</li>
+                <li>⚙️ <b>進階開發者設定摺疊</b>：隱藏並摺疊進階 API URL 輸入欄，為普通使用者提供更精簡直觀的介面。</li>
+                <li>📜 <b>內建歷史更新日誌時間軸</b>：新增本歷史紀錄板塊，隨時查看版本進化細節。</li>
+              </ul>
+            </div>
+            <!-- v1.0.1 -->
+            <div style="display: flex; flex-direction: column; gap: 3px; border-top: 1px dashed rgba(0,0,0,0.08); padding-top: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: bold; font-size: 12px; color: #555; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px;">v1.0.1 (歷史修正)</span>
                 <span style="font-size: 11px; color: #777;">2026/05/28</span>
               </div>
               <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: #444; line-height: 1.5;">
