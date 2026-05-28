@@ -69,7 +69,7 @@ async function init() {
   lockStateSelect.value = config.lockState || 'AUTO';
 
   // Initialize update URL and Version Info
-  updateUrlInput.value = config.updateUrl || 'https://raw.githubusercontent.com/username/Mom_Cheer_Up_Pet/main/update.json';
+  updateUrlInput.value = config.updateUrl || 'https://raw.githubusercontent.com/qqaq666ziv-byte/Mom_Cheer_Up_Pet/main/update.json';
   
   // Initialize dialogue category dropdown and current list
   phraseCategorySelect.value = 'lunch';

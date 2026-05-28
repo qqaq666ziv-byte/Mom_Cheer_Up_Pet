@@ -333,7 +333,7 @@ function isNewerVersion(newVer, currentVer) {
 }
 
 ipcMain.handle('check-for-updates', async (event, customUrl) => {
-  const url = customUrl || "https://raw.githubusercontent.com/username/Mom_Cheer_Up_Pet/main/update.json";
+  const url = customUrl || "https://raw.githubusercontent.com/qqaq666ziv-byte/Mom_Cheer_Up_Pet/main/update.json";
   try {
     const updateInfo = await fetchJSON(url);
     const currentVersion = app.getVersion();
