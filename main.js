@@ -411,16 +411,26 @@ ipcMain.handle('download-and-install-update', async (event, downloadUrl) => {
   try {
     await downloadWithRedirect(downloadUrl, installerPath, event);
     
-    // 執行安裝程式並安全退出目前 App
-    exec(`"${installerPath}"`, (err) => {
-      if (err) {
-        console.error('執行自動安裝失敗', err);
-      }
-    });
-    
-    setTimeout(() => {
-      app.quit();
-    }, 500);
+    // 解決 Windows 下安裝檔執行時的檔案寫入鎖定 (File Lock) Bug：
+    // 使用 detached spawn 獨立啟動安裝檔，並「立刻」使用 app.exit(0) 強制關閉主程式，
+    // 釋放所有檔案鎖，讓安裝程式能順利覆寫 MomCheerUpPet.exe！
+    const { spawn } = require('child_process');
+    try {
+      const child = spawn(installerPath, [], {
+        detached: true,
+        stdio: 'ignore'
+      });
+      child.unref();
+      
+      // 立刻關閉主程式，確保檔案鎖在一瞬間全部釋放，好讓安裝檔順利覆蓋舊版
+      app.exit(0);
+    } catch (spawnErr) {
+      console.error('使用 spawn 啟動失敗，嘗試 exec 備份方案', spawnErr);
+      exec(`"${installerPath}"`, () => {});
+      setTimeout(() => {
+        app.exit(0);
+      }, 100);
+    }
     
     return true;
   } catch (err) {
