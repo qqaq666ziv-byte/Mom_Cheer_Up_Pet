@@ -1,0 +1,7 @@
+node_modules/
+dist/
+local-cache/
+.DS_Store
+*.log
+MomCheerUpPet.zip
+winCodeSign/

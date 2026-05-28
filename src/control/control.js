@@ -69,7 +69,7 @@ async function init() {
   lockStateSelect.value = config.lockState || 'AUTO';
 
   // Initialize update URL and Version Info
-  updateUrlInput.value = config.updateUrl || 'https://raw.githubusercontent.com/username/Mom_Cheer_Up_Pet/main/update.json';
+  updateUrlInput.value = config.updateUrl || 'https://raw.githubusercontent.com/qqaq666ziv-byte/Mom_Cheer_Up_Pet/main/update.json';
   
   // Initialize dialogue category dropdown and current list
   phraseCategorySelect.value = 'lunch';
@@ -603,6 +603,12 @@ const downloadProgressBar = document.getElementById('downloadProgressBar');
 const noUpdateLabel = document.getElementById('noUpdateLabel');
 const currentVersionLabel = document.getElementById('currentVersionLabel');
 const updateUrlInput = document.getElementById('updateUrlInput');
+
+// 當手動輸入或貼上更新網址時，自動儲存至本機設定檔中！
+updateUrlInput.addEventListener('change', () => {
+  config.updateUrl = updateUrlInput.value.trim();
+  window.electronAPI.saveConfig(config);
+});
 
 let updateTargetUrl = '';
 
