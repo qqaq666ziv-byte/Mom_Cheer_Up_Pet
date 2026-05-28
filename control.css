@@ -1,0 +1,342 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', 'Microsoft JhengHei', sans-serif;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #333;
+}
+
+.glass-panel {
+  width: 90%;
+  height: 90%;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+header h1 {
+  font-size: 24px;
+  color: #d9480f;
+  text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+}
+
+header p {
+  font-size: 14px;
+  color: #555;
+  margin-top: 5px;
+}
+
+.tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  padding: 6px;
+  margin-bottom: 20px;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  padding: 12px 5px;
+  color: #444;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 68px; /* Consistent height to prevent misalignment */
+}
+
+.tab-btn.active {
+  background: #fff;
+  color: #d9480f;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.tab-icon {
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-btn:hover .tab-icon {
+  transform: scale(1.15) rotate(3deg); /* Sleek hover animation on icon */
+}
+
+.tab-text {
+  font-size: 11px; /* Slightly smaller to fit perfectly without wrapping */
+  font-weight: 600;
+  white-space: nowrap; /* Prevent any wrapping */
+}
+
+.tab-content {
+  display: none;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.tab-content.active {
+  display: flex;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.setting-group {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 15px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.setting-group label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #444;
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #d9480f;
+  cursor: pointer;
+  margin-top: -8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  background: rgba(0,0,0,0.1);
+  border-radius: 5px;
+}
+
+input[type="color"] {
+  width: 100%;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 8px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+  color: white;
+}
+
+.btn.secondary {
+  background: white;
+  color: #d9480f;
+  border: 1px solid rgba(255,255,255,0.8);
+}
+
+.btn.danger {
+  background: #ff5252;
+  color: white;
+}
+
+/* Custom Image Editor Styles */
+.instruction {
+  font-size: 13px;
+  color: #555;
+  text-align: center;
+}
+
+.canvas-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: repeating-conic-gradient(#eee 0% 25%, transparent 0% 50%) 50% / 20px 20px;
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+  border: 2px dashed rgba(0,0,0,0.1);
+  margin: 10px 0;
+  width: 100%;
+  max-width: 300px;
+  height: 300px;
+  align-self: center;
+  position: relative;
+}
+
+canvas {
+  cursor: crosshair;
+}
+
+.editor-tools {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 15px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.editor-tools label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.hint {
+  font-size: 12px;
+  color: #666;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #444;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #d9480f;
+  cursor: pointer;
+}
+
+/* 自訂捲軸樣式，提升高質感 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(217, 72, 15, 0.4);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(217, 72, 15, 0.6);
+}
+
+/* 狀態卡片動態懸停與動畫 */
+.status-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.status-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+.btn-slot-reset:hover {
+  background: #ff5252 !important;
+  color: white !important;
+}
+
+/* 輸入框焦點狀態樣式 */
+input[type="number"]:focus, input[type="text"]:focus, select:focus {
+  border-color: #ff758c !important;
+  box-shadow: 0 0 5px rgba(255,117,140,0.4);
+  background: white !important;
+}
+
+/* App Cover Banner Styles */
+.app-cover-container {
+  width: 100%;
+  height: 160px; /* Elegant, premium fixed height for the banner */
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.app-cover-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Crop and fill perfectly without squishing or stretching */
+  object-position: center 30%; /* Focus slightly higher for portraits to avoid cut-off heads/faces */
+  display: block;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-cover-container:hover img {
+  transform: scale(1.02); /* Elegant micro-interaction on hover */
+}

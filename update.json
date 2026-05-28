@@ -1,5 +1,5 @@
 {
-  "version": "1.1.3",
-  "url": "https://github.com/qqaq666ziv-byte/Mom_Cheer_Up_Pet/releases/download/v1.1.3/MomCheerUpPet_Setup_1.1.3.exe",
-  "notes": "璨璨新世代大升級！v1.1.3 終極旗艦版！\n- 📜 改善與優化更新日誌排版：精細調整歷史版本日誌時間軸，提供最極致的美麗視覺與流暢體驗。\n- 🔄 線上更新功能雙重驗證：本版本用作完美驗證 v1.1.2 檔案鎖定解除程式碼之可用性，從此實現真·全自動一鍵後台升級！"
+  "version": "1.1.4",
+  "url": "https://github.com/qqaq666ziv-byte/Mom_Cheer_Up_Pet/releases/download/v1.1.4/MomCheerUpPet_Setup_1.1.4.exe",
+  "notes": "修復 UI 介面問題！v1.1.4 最新質感版！\n- 🎨 控制台介面與版面修復：重新設計導覽標籤（Tab Bar）為垂直堆疊排列，防止任何文字換行或對齊失衡，展現高級 App 質感。\n- 🖼️ 封面 Banner 滿版剪裁優化：導入智慧滿版與 30% 上部人臉定位技術，完美呈現家人肖像，絕不裁切遮擋頭像。"
 }
