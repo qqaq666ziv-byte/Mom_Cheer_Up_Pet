@@ -1,5 +1,5 @@
 {
-  "version": "1.1.1",
-  "url": "https://github.com/qqaq666ziv-byte/Mom_Cheer_Up_Pet/releases/download/v1.1.1/MomCheerUpPet_Setup_1.1.1.exe",
-  "notes": "璨璨新世代大升級！v1.1.1 終極旗艦版！\n- 🖼️ 增加「應用程式封面橫幅」於控制面板頂端，介面美觀性大WOW躍升！\n- 📜 內建「璨璨版本歷史更新日誌」時間軸，隨時查看版本進化細節。\n- 🛡️ 徹底修復被其他視窗蓋過去的 Bug（引進三重防置頂鎖定防禦機制，完美超越 Chrome 全螢幕及 Photoshop 等專業軟體疊加）。\n- 🎯 修復並優化滑鼠壓放變臉視覺回饋：滑鼠按壓時立刻變身 STRETCH (受驚拉長)，放開時彈性還原，互動流暢！\n- 🔄 更新下載核心重構：徹底修復 EPERM 寫入鎖定與 302 重定向下載失敗的狀態碼錯誤，打通全自動線上更新。"
+  "version": "1.1.2",
+  "url": "https://github.com/qqaq666ziv-byte/Mom_Cheer_Up_Pet/releases/download/v1.1.2/MomCheerUpPet_Setup_1.1.2.exe",
+  "notes": "璨璨新世代大升級！v1.1.2 終極旗艦版！\n- 🖼️ 增加「應用程式封面橫幅」於控制面板頂端，介面美觀性大WOW躍升！\n- 📜 內建「璨璨版本歷史更新日誌」時間軸，隨時查看版本進化細節。\n- 🛡️ 徹底修復被其他視窗蓋過去的 Bug（引進三重防置頂鎖定防禦機制，完美超越 Chrome 全螢幕及 Photoshop 等專業軟體疊加）。\n- 🎯 修復並優化滑鼠壓放變臉視覺回饋：滑鼠按壓時立刻變身 STRETCH (受驚拉長)，放開時彈性還原，互動流暢！\n- 🔄 更新下載核心重構 (v1.1.2 增強)：採用全新獨立行程 (Detached Spawn) 與瞬間退出解鎖機制，完美克服 Windows 檔案鎖定 Bug，徹底打通未來的一鍵全自動更新！"
 }
