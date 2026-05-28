@@ -96,8 +96,33 @@ function createPetWindow() {
   // 初始化時預設忽略滑鼠事件，讓全螢幕視窗不會擋住用戶操作
   petWindow.setIgnoreMouseEvents(true, { forward: true });
 
+  // 防止視窗被系統最小化 (例如按下 Win+D 顯示桌面時)
+  petWindow.on('minimize', () => {
+    petWindow.restore();
+  });
+
+  // 當視窗失去焦點時，強制重新置頂
+  petWindow.on('blur', () => {
+    if (petWindow) {
+      petWindow.setAlwaysOnTop(true, 'screen-saver');
+    }
+  });
+
+  // 每秒定時器強制置頂，雙重保險防止任何第三方視窗搶佔最上層，並自動還原最小化
+  const topmostInterval = setInterval(() => {
+    if (petWindow) {
+      if (petWindow.isMinimized()) {
+        petWindow.restore();
+      }
+      petWindow.setAlwaysOnTop(true, 'screen-saver');
+    } else {
+      clearInterval(topmostInterval);
+    }
+  }, 1000);
+
   petWindow.on('closed', () => {
     petWindow = null;
+    clearInterval(topmostInterval);
   });
 }
 
