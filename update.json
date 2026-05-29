@@ -1,5 +1,5 @@
 {
-  "version": "2.1.0",
-  "url": "https://github.com/qqaq666ziv-byte/Mom_Cheer_Up_Pet/releases/download/v2.1.0/MomCheerUpPet_Setup_2.1.0.exe",
-  "notes": "璨璨桌面寵物 v2.1.0 新增右鍵查看天氣、手動天氣定位、遠端傳情叮咚提示音與署名自訂！\n- 🌤️ 右鍵即時查看天氣：右鍵點擊璨璨新增「查看天氣」選項，點擊立刻播報當前溫度氣象！\n- 📍 手動天氣定位自由切換：支援在控制面板完全關閉自動 IP 天氣，由手動下拉台灣 22 縣市隨心切換！\n- 🔔 遠端傳情叮咚提示音：每當收到遠端傳情，播放清脆的水晶雙音提示音，溫馨問候不漏接！\n- 👤 署名自由客製化：全面解鎖遠端傳情發送者署名自由輸入，自訂署名即時呈現在粉色愛心對話框中！"
+  "version": "2.1.1",
+  "url": "https://github.com/qqaq666ziv-byte/Mom_Cheer_Up_Pet/releases/download/v2.1.1/MomCheerUpPet_Setup_2.1.1.exe",
+  "notes": "璨璨桌面寵物 v2.1.1 修復氣象對話不顯示問題！\n- 🐞 修復氣象對話不顯示問題：修正了對話泡泡初始化 CSS `.hidden` 樣式未正常清除的 Bug，確保點擊「查看天氣」或隨機對話時能 100% 顯示溫馨播報與氣溫小徽章！"
 }

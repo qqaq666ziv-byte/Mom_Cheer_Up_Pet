@@ -194,6 +194,7 @@ function handleIncomingRemoteMessage(sender, text) {
 
 let config = {};
 let messageTimeout = null;
+let fadeTimeout = null;
 let scheduleInterval = null;
 
 // 預設語錄對話
@@ -817,10 +818,17 @@ function checkTimeReminders() {
 
 function showDialog(text, duration = 4000) {
   dialogText.innerText = text;
+  if (fadeTimeout) clearTimeout(fadeTimeout);
+  dialogBubble.classList.remove('hidden');
   dialogBubble.classList.add('show');
   if (messageTimeout) clearTimeout(messageTimeout);
   messageTimeout = setTimeout(() => {
     dialogBubble.classList.remove('show');
+    fadeTimeout = setTimeout(() => {
+      if (!dialogBubble.classList.contains('show')) {
+        dialogBubble.classList.add('hidden');
+      }
+    }, 300);
   }, duration);
 }
 
