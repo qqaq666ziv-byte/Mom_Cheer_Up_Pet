@@ -20,6 +20,10 @@ const speedValue = document.getElementById('speedValue');
 const randomWander = document.getElementById('randomWander');
 const applyBtn = document.getElementById('applyBtn');
 
+const autoLocation = document.getElementById('autoLocation');
+const weatherCity = document.getElementById('weatherCity');
+const manualCityGroup = document.getElementById('manualCityGroup');
+
 // UI Elements (Time Settings)
 const lunchStartH = document.getElementById('lunchStartH');
 const lunchStartM = document.getElementById('lunchStartM');
@@ -82,6 +86,15 @@ async function init() {
   // Render status boards and pool grids
   updateStatusBoard();
   loadRandomPoolGrid();
+
+  // Initialize Weather Settings
+  autoLocation.checked = config.autoLocation !== false;
+  weatherCity.value = config.weatherCity || '台北市';
+  manualCityGroup.style.display = autoLocation.checked ? 'none' : 'flex';
+  
+  autoLocation.addEventListener('change', () => {
+    manualCityGroup.style.display = autoLocation.checked ? 'none' : 'flex';
+  });
   
   // Silently check version info in background
   try {
@@ -115,6 +128,9 @@ applyBtn.addEventListener('click', () => {
     endH: parseInt(offworkEndH.value),
     endM: parseInt(offworkEndM.value)
   };
+  
+  config.autoLocation = autoLocation.checked;
+  config.weatherCity = weatherCity.value;
   
   window.electronAPI.saveConfig(config);
   
@@ -678,6 +694,130 @@ startUpdateBtn.addEventListener('click', async () => {
     unbind();
   }
 });
+
+// ==========================================
+// 遠端即時傳情對話 (Remote Dialogue System)
+// ==========================================
+const remoteSenderInput = document.getElementById('remoteSenderInput');
+const remoteMessageInput = document.getElementById('remoteMessageInput');
+const sendRemoteBtn = document.getElementById('sendRemoteBtn');
+const clearRemoteHistoryBtn = document.getElementById('clearRemoteHistoryBtn');
+const remoteHistoryList = document.getElementById('remoteHistoryList');
+const remoteHistoryPlaceholder = document.getElementById('remoteHistoryPlaceholder');
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function loadRemoteHistory() {
+  const history = JSON.parse(localStorage.getItem('remote_history') || '[]');
+  remoteHistoryList.innerHTML = '';
+  if (history.length === 0) {
+    remoteHistoryList.appendChild(remoteHistoryPlaceholder);
+    return;
+  }
+  history.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'remote-history-card';
+    card.style.marginTop = '5px';
+    card.innerHTML = `
+      <div class="remote-history-meta">
+        <span>👤 ${escapeHtml(item.sender)}</span>
+        <span class="remote-history-time">${new Date(item.timestamp).toLocaleString()}</span>
+      </div>
+      <div class="remote-history-content">${escapeHtml(item.text)}</div>
+    `;
+    remoteHistoryList.appendChild(card);
+  });
+}
+
+function addRemoteHistory(sender, text) {
+  const history = JSON.parse(localStorage.getItem('remote_history') || '[]');
+  history.unshift({ sender, text, timestamp: Date.now() });
+  if (history.length > 50) history.pop();
+  localStorage.setItem('remote_history', JSON.stringify(history));
+  loadRemoteHistory();
+}
+
+clearRemoteHistoryBtn.addEventListener('click', () => {
+  if (confirm('確定要清空所有的遠端發送紀錄嗎？')) {
+    localStorage.removeItem('remote_history');
+    loadRemoteHistory();
+  }
+});
+
+sendRemoteBtn.addEventListener('click', () => {
+  const sender = remoteSenderInput.value.trim() || '兒子璨璨';
+  const text = remoteMessageInput.value.trim();
+  
+  if (!text) {
+    alert('請輸入想對媽媽說的貼心話！');
+    return;
+  }
+  
+  sendRemoteBtn.disabled = true;
+  const btnText = sendRemoteBtn.innerText;
+  sendRemoteBtn.innerText = '📡 發送傳送中...';
+  
+  try {
+    const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
+      clientId: 'mompet_ctrl_' + Math.random().toString(16).substr(2, 8),
+      connectTimeout: 5000
+    });
+    
+    const timeoutId = setTimeout(() => {
+      client.end();
+      sendRemoteBtn.disabled = false;
+      sendRemoteBtn.innerText = btnText;
+      alert('連線逾時，請檢查您的網路！');
+    }, 6000);
+
+    client.on('connect', () => {
+      clearTimeout(timeoutId);
+      const payload = JSON.stringify({
+        sender: sender,
+        text: text,
+        timestamp: Date.now()
+      });
+      
+      client.publish('mom_cheer_up_pet/messages/qqaq666ziv-byte', payload, { qos: 1 }, (err) => {
+        client.end();
+        sendRemoteBtn.disabled = false;
+        sendRemoteBtn.innerText = btnText;
+        
+        if (err) {
+          console.error('MQTT 發送失敗', err);
+          alert('發送失敗！');
+        } else {
+          remoteMessageInput.value = '';
+          addRemoteHistory(sender, text);
+          
+          sendRemoteBtn.innerText = '✅ 遠端傳情成功！';
+          setTimeout(() => {
+            sendRemoteBtn.innerText = btnText;
+          }, 2000);
+        }
+      });
+    });
+    
+    client.on('error', (err) => {
+      clearTimeout(timeoutId);
+      console.error('MQTT 連線出錯', err);
+      client.end();
+      sendRemoteBtn.disabled = false;
+      sendRemoteBtn.innerText = btnText;
+      alert('發送連線出錯！');
+    });
+  } catch (e) {
+    console.error('MQTT 發送異常', e);
+    sendRemoteBtn.disabled = false;
+    sendRemoteBtn.innerText = btnText;
+    alert('發送發生異常：' + e.message);
+  }
+});
+
+// 加載發送歷史
+loadRemoteHistory();
 
 // Run Init
 init();

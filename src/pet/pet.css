@@ -107,3 +107,49 @@ body, html {
   opacity: 1;
   transform: translateY(-10px) scale(1);
 }
+
+.hidden {
+  display: none !important;
+}
+
+/* 天氣小徽章 */
+.dialog-weather {
+  position: absolute;
+  top: -12px;
+  right: -10px;
+  background: linear-gradient(135deg, #ff9e22 0%, #ff7300 100%);
+  color: white;
+  border-radius: 20px;
+  padding: 2px 6px;
+  font-size: 9px;
+  font-weight: 800;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  z-index: 12;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* 遠端傳情訊息泡泡特別款 */
+.dialog-bubble.remote-bubble {
+  background-color: #fff0f5 !important; /* Lavender blush background */
+  border-color: #ff69b4 !important; /* Hot pink border */
+  color: #c71585 !important; /* Medium violet red text */
+  box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3) !important;
+  animation: remotePulse 2s infinite ease-in-out;
+}
+
+.dialog-bubble.remote-bubble::after {
+  border-color: #ff69b4 transparent transparent transparent !important;
+}
+
+.dialog-bubble.remote-bubble::before {
+  border-color: #fff0f5 transparent transparent transparent !important;
+}
+
+@keyframes remotePulse {
+  0% { transform: translateY(-10px) scale(1); }
+  50% { transform: translateY(-13px) scale(1.02); }
+  100% { transform: translateY(-10px) scale(1); }
+}
+

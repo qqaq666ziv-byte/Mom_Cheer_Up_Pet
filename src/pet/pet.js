@@ -4,6 +4,159 @@ const sprite = document.getElementById('pet-sprite');
 const dialogBubble = document.getElementById('dialog-bubble');
 const dialogText = document.getElementById('dialog-text');
 
+// 台灣 22 縣市經緯度對照表
+const TAIWAN_CITIES = {
+  "台北市": { lat: 25.03, lon: 121.56 },
+  "新北市": { lat: 25.01, lon: 121.46 },
+  "桃園市": { lat: 24.99, lon: 121.31 },
+  "台中市": { lat: 24.14, lon: 120.67 },
+  "台南市": { lat: 22.99, lon: 120.21 },
+  "高雄市": { lat: 22.62, lon: 120.31 },
+  "基隆市": { lat: 25.12, lon: 121.73 },
+  "新竹市": { lat: 24.81, lon: 120.96 },
+  "嘉義市": { lat: 23.48, lon: 120.44 },
+  "新竹縣": { lat: 24.82, lon: 121.01 },
+  "苗栗縣": { lat: 24.56, lon: 120.82 },
+  "彰化縣": { lat: 24.05, lon: 120.51 },
+  "南投縣": { lat: 23.90, lon: 120.68 },
+  "雲林縣": { lat: 23.70, lon: 120.53 },
+  "嘉義縣": { lat: 23.45, lon: 120.25 },
+  "屏東縣": { lat: 22.67, lon: 120.48 },
+  "宜蘭縣": { lat: 24.75, lon: 121.75 },
+  "花蓮縣": { lat: 23.97, lon: 121.60 },
+  "台東縣": { lat: 22.75, lon: 121.14 },
+  "澎湖縣": { lat: 23.56, lon: 119.56 },
+  "金門縣": { lat: 24.44, lon: 118.37 },
+  "連江縣": { lat: 26.15, lon: 119.92 }
+};
+
+let weatherState = {
+  loaded: false,
+  city: '台北市',
+  temp: 25,
+  desc: '晴朗',
+  emoji: '☀️'
+};
+let weatherCheckInterval = null;
+let mqttClient = null;
+
+async function fetchWeather() {
+  let city = config.weatherCity || '台北市';
+  let isAuto = config.autoLocation !== false;
+  
+  if (isAuto) {
+    try {
+      const geoRes = await fetch('https://ipapi.co/json/');
+      if (geoRes.ok) {
+        const geoData = await geoRes.json();
+        if (geoData.country_code === 'TW' && geoData.region) {
+          const detectedRegion = geoData.region;
+          for (const cityName in TAIWAN_CITIES) {
+            if (detectedRegion.includes(cityName.replace('市', '').replace('縣', ''))) {
+              city = cityName;
+              break;
+            }
+          }
+        }
+      }
+    } catch (geoErr) {
+      console.error('自動定位天氣失敗，將使用設定縣市', geoErr);
+    }
+  }
+  
+  const coords = TAIWAN_CITIES[city] || TAIWAN_CITIES["台北市"];
+  
+  try {
+    const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,weather_code&timezone=Asia/Taipei`);
+    if (weatherRes.ok) {
+      const weatherData = await weatherRes.json();
+      const temp = Math.round(weatherData.current.temperature_2m);
+      const code = weatherData.current.weather_code;
+      
+      let desc = '晴朗';
+      let emoji = '☀️';
+      
+      if (code === 0) { desc = '晴朗'; emoji = '☀️'; }
+      else if (code >= 1 && code <= 3) { desc = '多雲'; emoji = '🌤️'; }
+      else if (code === 45 || code === 48) { desc = '有霧'; emoji = '🌫️'; }
+      else if (code >= 51 && code <= 55) { desc = '毛毛雨'; emoji = '🌧️'; }
+      else if (code >= 61 && code <= 65) { desc = '下雨'; emoji = '🌧️'; }
+      else if (code >= 71 && code <= 75) { desc = '下雪'; emoji = '🌨️'; }
+      else if (code >= 80 && code <= 82) { desc = '陣雨'; emoji = '🌧️'; }
+      else if (code >= 95 && code <= 99) { desc = '雷雨'; emoji = '⛈️'; }
+      
+      weatherState = {
+        loaded: true,
+        city: city,
+        temp: temp,
+        desc: desc,
+        emoji: emoji
+      };
+      
+      const weatherBadge = document.getElementById('dialog-weather');
+      if (weatherBadge) {
+        weatherBadge.innerText = `${emoji} ${city} ${temp}°C`;
+        weatherBadge.classList.remove('hidden');
+      }
+    }
+  } catch (weatherErr) {
+    console.error('獲取天氣資料失敗', weatherErr);
+  }
+}
+
+function initMqtt() {
+  if (mqttClient) {
+    try { mqttClient.end(); } catch(e) {}
+  }
+  
+  try {
+    mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
+      clientId: 'mompet_client_' + Math.random().toString(16).substr(2, 8),
+      reconnectPeriod: 10000,
+      connectTimeout: 10000
+    });
+    
+    mqttClient.on('connect', () => {
+      console.log('MQTT 遠端傳情服務連線成功');
+      mqttClient.subscribe('mom_cheer_up_pet/messages/qqaq666ziv-byte', { qos: 1 });
+    });
+    
+    mqttClient.on('message', (topic, message) => {
+      try {
+        const payload = JSON.parse(message.toString());
+        if (payload.sender && payload.text) {
+          handleIncomingRemoteMessage(payload.sender, payload.text);
+        }
+      } catch (e) {
+        console.error('MQTT 接收訊息解析失敗', e);
+      }
+    });
+    
+    mqttClient.on('error', (err) => {
+      console.error('MQTT 遠端服務連線錯誤', err);
+    });
+  } catch (err) {
+    console.error('MQTT 初始化失敗', err);
+  }
+}
+
+function handleIncomingRemoteMessage(sender, text) {
+  scaleX = 1.4;
+  scaleY = 0.6;
+  rotation = -10;
+  
+  setSpriteImage(images.DEFAULT, 8000);
+  
+  const formattedText = `【💖 遠端傳情】${sender}：${text}`;
+  
+  dialogBubble.classList.add('remote-bubble');
+  showDialog(formattedText, 10000);
+  
+  setTimeout(() => {
+    dialogBubble.classList.remove('remote-bubble');
+  }, 10000);
+}
+
 let config = {};
 let messageTimeout = null;
 let scheduleInterval = null;
@@ -115,6 +268,13 @@ async function init() {
   // 立即觸發一次時段提醒判定與定時檢查
   checkTimeReminders();
   setInterval(checkTimeReminders, 30000); // 每 30 秒確實檢查一次時段
+
+  // 啟動天氣與遠端即時傳情
+  await fetchWeather();
+  initMqtt();
+
+  if (weatherCheckInterval) clearInterval(weatherCheckInterval);
+  weatherCheckInterval = setInterval(fetchWeather, 30 * 60 * 1000);
 }
 
 let overrideImage = null;
@@ -262,6 +422,8 @@ function applySettings(newConfig) {
 
 window.electronAPI.onUpdateSettings((newConfig) => {
   applySettings(newConfig);
+  // 當設定更新時，重新拉取天氣，以防更換了縣市或定位開關
+  fetchWeather();
 });
 
 // 排程隨機暖心對話語錄
@@ -282,6 +444,16 @@ function startScheduleCheck() {
     } else if (isOffWorkTime && Math.random() < 0.2) {
       setSpriteImage(images.SLEEP, 25000);
       showDialog(offworkList[Math.floor(Math.random() * offworkList.length)], 25000);
+    } else if (weatherState.loaded && Math.random() < 0.15) {
+      // 15% 機率播報天氣
+      let weatherAdvice = `璨璨天氣提醒 🌤️：目前${weatherState.city}氣溫 ${weatherState.temp}°C ${weatherState.emoji}，濕度適宜，媽媽工作辛苦了！`;
+      if (weatherState.desc.includes('雨')) {
+        weatherAdvice = `璨璨貼心提醒 🌧️：目前${weatherState.city}正在下雨呢！外面濕冷（氣溫 ${weatherState.temp}°C），媽媽記得多喝熱水，小心感冒喔！`;
+      } else if (weatherState.temp <= 18) {
+        weatherAdvice = `璨璨保暖警報 ❄️：目前${weatherState.city}冷冷的，只有 ${weatherState.temp}°C 喔！媽媽要注意保暖，別著涼了！`;
+      }
+      setSpriteImage(images.DEFAULT, 8000);
+      showDialog(weatherAdvice, 8000);
     } else if (Math.random() < 0.1) {
       setSpriteImage(images.TRAVEL, 8000);
       showDialog(cheerList[Math.floor(Math.random() * cheerList.length)], 8000);
@@ -554,11 +726,23 @@ function handlePetClick() {
   scaleY = 0.65;
   rotation = 12; // 增加俏皮旋轉
   
+  // 25% 機率觸發獨特氣象語錄
+  if (weatherState.loaded && Math.random() < 0.25) {
+    let weatherGreeting = `目前${weatherState.city}是 ${weatherState.temp}°C ${weatherState.emoji} 喔！璨璨隨時陪伴您！`;
+    if (weatherState.desc.includes('雨')) {
+      weatherGreeting = `報告親愛的母！目前${weatherState.city}正在下雨呢 ${weatherState.emoji}（氣溫 ${weatherState.temp}°C）。璨璨提醒您出門一定要帶把傘喔！`;
+    } else if (weatherState.desc.includes('晴')) {
+      weatherGreeting = `天氣真好！目前${weatherState.city}是晴朗的一天 ${weatherState.emoji} ${weatherState.temp}°C。媽媽累了就跟璨璨一起去曬曬太陽吧！`;
+    } else if (weatherState.temp <= 18) {
+      weatherGreeting = `冷颼颼的天氣！目前${weatherState.city}氣溫僅有 ${weatherState.temp}°C ${weatherState.emoji}。媽媽要注意加件衣服保暖喔！`;
+    }
+    showDialog(weatherGreeting, 5000);
+    return;
+  }
+  
   const clickList = getPhrases('click');
   const randomClickQuote = clickList[Math.floor(Math.random() * clickList.length)];
   showDialog(randomClickQuote, 4000);
-  
-  // 點擊事件已在 pointerdown 中觸發 STRETCH 圖片，此處放開後會立刻自動且彈性地變回原本的 LAUGH/DEFAULT 圖片！
 }
 
 // 實作時段檢查與提醒功能 (午休與下班，每次提醒停留 25 秒)

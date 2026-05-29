@@ -315,4 +315,40 @@ input[type="number"]:focus, input[type="text"]:focus, select:focus {
   background: white !important;
 }
 
+/* 遠端傳情文字框焦點狀態樣式 */
+textarea:focus {
+  border-color: #ff758c !important;
+  box-shadow: 0 0 5px rgba(255,117,140,0.4);
+  background: white !important;
+}
 
+/* 遠端歷史紀錄卡片樣式 */
+.remote-history-card {
+  background: rgba(255, 255, 255, 0.6);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  animation: fadeIn 0.3s ease;
+}
+
+.remote-history-meta {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  color: #d9480f;
+  font-size: 11px;
+}
+
+.remote-history-time {
+  color: #777;
+  font-weight: normal;
+}
+
+.remote-history-content {
+  color: #333;
+  word-break: break-all;
+}
