@@ -190,6 +190,7 @@ ipcMain.on('show-context-menu', () => {
   const contextMenu = Menu.buildFromTemplate([
     { label: '開啟控制面板', click: () => createControlPanel() },
     { label: '跟我說話！', click: () => petWindow.webContents.send('force-speak') },
+    { label: '☀️ 查看天氣', click: () => petWindow.webContents.send('show-weather-dialog') },
     { type: 'separator' },
     { label: '關閉寵物', click: () => app.quit() }
   ]);

@@ -140,7 +140,42 @@ function initMqtt() {
   }
 }
 
+function playDingSound() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // First high note
+    const osc1 = audioCtx.createOscillator();
+    const gainNode1 = audioCtx.createGain();
+    osc1.connect(gainNode1); 
+    gainNode1.connect(audioCtx.destination);
+    osc1.type = 'sine'; 
+    osc1.frequency.setValueAtTime(987.77, audioCtx.currentTime); // B5 note
+    gainNode1.gain.setValueAtTime(0, audioCtx.currentTime);
+    gainNode1.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.02);
+    gainNode1.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+    osc1.start(audioCtx.currentTime); 
+    osc1.stop(audioCtx.currentTime + 0.4);
+    
+    // Second higher note shortly after, creating a beautiful chime/crystal double-ding
+    const osc2 = audioCtx.createOscillator();
+    const gainNode2 = audioCtx.createGain();
+    osc2.connect(gainNode2); 
+    gainNode2.connect(audioCtx.destination);
+    osc2.type = 'sine'; 
+    osc2.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.08); // E6 note
+    gainNode2.gain.setValueAtTime(0, audioCtx.currentTime + 0.08);
+    gainNode2.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 0.10);
+    gainNode2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+    osc2.start(audioCtx.currentTime + 0.08); 
+    osc2.stop(audioCtx.currentTime + 0.6);
+  } catch (e) { 
+    console.error('Play audio failed', e); 
+  }
+}
+
 function handleIncomingRemoteMessage(sender, text) {
+  playDingSound();
   scaleX = 1.4;
   scaleY = 0.6;
   rotation = -10;
@@ -275,6 +310,22 @@ async function init() {
 
   if (weatherCheckInterval) clearInterval(weatherCheckInterval);
   weatherCheckInterval = setInterval(fetchWeather, 30 * 60 * 1000);
+
+  // 註冊右鍵查看天氣監聽器
+  window.electronAPI.onShowWeatherDialog(() => {
+    if (weatherState.loaded) {
+      let weatherAdvice = `報告親愛的母！目前${weatherState.city}天氣${weatherState.desc} ${weatherState.emoji}，氣溫 ${weatherState.temp}°C。`;
+      if (weatherState.desc.includes('雨')) {
+        weatherAdvice += ` 外面正在下雨喔，出門一定要記得帶傘！🌧️`;
+      } else {
+        weatherAdvice += ` 天氣感覺挺不錯的，媽媽辛苦啦！✨`;
+      }
+      setSpriteImage(images.DEFAULT, 6000);
+      showDialog(weatherAdvice, 6000);
+    } else {
+      showDialog('氣象雷達正在連線中... 請稍候再試喔！🛰️', 3000);
+    }
+  });
 }
 
 let overrideImage = null;

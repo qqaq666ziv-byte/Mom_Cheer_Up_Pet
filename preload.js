@@ -70,6 +70,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     const subscription = () => callback();
     ipcRenderer.on('force-speak', subscription);
     return () => ipcRenderer.removeListener('force-speak', subscription);
+  },
+  onShowWeatherDialog: (callback) => {
+    const subscription = () => callback();
+    ipcRenderer.on('show-weather-dialog', subscription);
+    return () => ipcRenderer.removeListener('show-weather-dialog', subscription);
   }
 });
 
